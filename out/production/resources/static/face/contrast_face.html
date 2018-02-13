@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>face++</title>
+    <style>
+        video{
+            border:1px solid gray;
+            width:350px;
+            height:350px;
+            border-radius:50%;
+            margin-right:20px;
+        }
+        canvas{
+            border:1px solid gray;
+            width:300px;
+            height:300px;
+        }
+    </style>
+</head>
+<body>
+<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+账号：<input type="text" id="number" placeholder="请填入您的账号"><br><br><br>
+<video autoplay></video>
+<canvas id="myCanvas"></canvas>
+<button id="capture">拍照验证</button><br><br><br>
+<div id="attr" >
+
+    <a href="https://console.faceplusplus.com.cn/documents/4887586">API参考地址</a>
+
+</div>
+<script src="../jq/jquery-3.1.1.min.js"></script>
+<script type="text/javascript">
+    function hasUserMedia(){//判断是否支持调用设备api，因为浏览器不同所以判断方式不同哦
+        return !!(navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
+    }
+    if(hasUserMedia()){
+        //alert(navigator.mozGetUserMedia)
+        navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+        var video=document.querySelector("video");
+        var canvas=document.querySelector("canvas");
+        var streaming = false;
+        navigator.getUserMedia({
+            video:true,//开启视频
+            audio:false//先关闭音频，因为会有回响，以后两台电脑通信不会有响声
+        },function(stream){//将视频流交给video
+            video.src=window.URL.createObjectURL(stream);
+            streaming = true;
+        },function(err){
+            console.log("capturing",err)
+        });
+        document.querySelector("#capture").addEventListener("click",function(event){
+            if(streaming){
+                //alert(video.clientHeight)
+                //canvas.width = video.clientWidth;
+                //canvas.height= video.clientHeight;
+                canvas.width = 800;
+                canvas.height = 800;
+                var context = canvas.getContext('2d');
+
+                context.drawImage(video,95,95);
+
+
+                var info = {
+                    number: $("#number").val(),
+                    imgString: canvas.toDataURL("image/png")
+                }
+
+                $.post("http://localhost:8097/face/contrast",info,function(data){
+                    alert(data);
+
+                })
+
+
+            }
+        })
+    }else{
+        alert("浏览器暂不支持")
+    }
+
+
+</script>
+
+</body>
+</html>

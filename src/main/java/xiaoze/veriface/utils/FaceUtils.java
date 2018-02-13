@@ -9,18 +9,101 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import javax.net.ssl.SSLException;
 import sun.misc.BASE64Decoder;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 
 /**
  * @author xiaoze
  * @date 2018/1/26
  */
 public class FaceUtils {
+
+    public String compare(String token1, String token2) {
+
+        String compareUrl = "https://api-cn.faceplusplus.com/facepp/v3/compare";
+
+        List<BasicNameValuePair> formparams = new ArrayList<>();
+        formparams.add(new BasicNameValuePair("api_key", "N8j_5lchMSLKBK2F9b1KTthEnDJykqFs"));  //涉及到face++技术,请你使用你自己的api_key
+        formparams.add(new BasicNameValuePair("api_secret", "IY1LQbLoJKZllVsPCAo2korpNnzv00cm"));  //涉及到face++技术,请你使用你自己的api_secret
+        formparams.add(new BasicNameValuePair("face_token1", token1));
+        formparams.add(new BasicNameValuePair("face_token2", token2));
+        return postHttp(formparams, compareUrl);
+    }
+
+    private static String postHttp(List<BasicNameValuePair> formparams, String url) {
+        // 创建默认的httpClient实例.
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+        // 创建httppost
+        HttpPost httppost = new HttpPost(url);
+        UrlEncodedFormEntity uefEntity;
+        String returnStr = "";
+        try {
+            uefEntity = new UrlEncodedFormEntity(formparams, "UTF-8");
+            httppost.setEntity(uefEntity);
+            System.out.println("executing request " + httppost.getURI());
+            CloseableHttpResponse response = httpclient.execute(httppost);
+            try {
+                HttpEntity entity = response.getEntity();
+                if (entity != null) {
+                    returnStr = EntityUtils.toString(entity, "UTF-8");
+                    System.out.println("--------------------------------------");
+                    System.out.println("Response content: " + returnStr);
+                    System.out.println("--------------------------------------");
+                }
+            } finally {
+                response.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            // 关闭连接,释放资源
+            try {
+                httpclient.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return returnStr;
+
+    }
+
+
+    public static String checkFace(String imgString) throws IOException {
+        byte[] buff = getStringImage(imgString.substring(imgString.indexOf(",")+1));
+        return check(buff);
+    }
+
+    public static String check(byte[] buff) {
+
+        String url = "https://api-cn.faceplusplus.com/facepp/v3/detect";
+
+        HashMap<String, String> map = new HashMap<>();
+        HashMap<String, byte[]> byteMap = new HashMap<>();
+        map.put("api_key", "N8j_5lchMSLKBK2F9b1KTthEnDJykqFs");  //涉及到face++技术,请你使用你自己的api_key
+        map.put("api_secret", "IY1LQbLoJKZllVsPCAo2korpNnzv00cm");  //涉及到face++技术,请你使用你自己的api_secret
+        map.put("return_landmark", "1");
+        map.put("return_attributes", "gender,age,smiling,headpose,facequality,blur,eyestatus,emotion,ethnicity,beauty,mouthstatus,eyegaze,skinstatus");
+        byteMap.put("image_file", buff);
+        String str =null;
+        try{
+            byte[] bt = post(url, map, byteMap);
+            str = new String(bt);
+            System.out.println("返回的数据是："+str);
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+        return str;
+    }
+
 
     /**
      * Base64字符串转 二进制流
