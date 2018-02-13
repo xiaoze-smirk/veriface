@@ -83,6 +83,7 @@ public class FaceController {
         String faceTokenOne;
         String faceTokenTwo;
         int i=0;
+        int j=0;
 
 
         while(true){
@@ -90,6 +91,13 @@ public class FaceController {
             sOne=strOne.split("\"");
             if(sOne[1].equals("error_message"))
                 continue;
+            //解决一张图片有多个人问题
+            for(String str:sOne){
+                if(str.equals("age"))
+                    j++;
+                if(j>1)
+                    return "对不起，您上传的用户头像照片质量不达标(即不是单个有效头像)，请重新上传！";
+            }
             sLengthOne = sOne.length;
             faceTokenOne = sOne[sLengthOne-2];
             i++;
