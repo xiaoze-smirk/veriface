@@ -102,7 +102,7 @@ public class FaceController {
             faceTokenOne = sOne[sLengthOne-2];
             i++;
             if(i>=10)
-                break;
+                return "网络故障，请稍后再试！";
             break;
         }
 
@@ -122,18 +122,21 @@ public class FaceController {
             faceTokenTwo = sTwo[sLengthTwo-2];
             i++;
             if(i>=10)
-                break;
+                return "网络故障，请稍后再试！";
             break;
         }
 
         String compareInfo ;
         String[] compareInfoStr;
+        i=0;
         while(true){
             compareInfo = faceUtils.compare(faceTokenOne,faceTokenTwo);
             compareInfoStr = compareInfo.split("\"");
 
             if(compareInfoStr[1].equals("error_message"))
                 continue;
+            if(i>=10)
+                return "网络故障，请稍后再试！";
             break;
         }
 
