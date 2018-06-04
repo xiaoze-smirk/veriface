@@ -8,7 +8,7 @@ Face++TM是新一代云端视觉服务平台，提供一整套世界领先的人
 
 ### 1、将项目导入IDEA（优选）或eclipse。
 ### 2、启动VerifaceApplication该类即可。
-### 3、在谷歌或火狐输入http://localhost:8097，即可浏览。
+### 3、在谷歌或火狐输入<http://localhost:8097>，即可浏览。
 
 --------
 
